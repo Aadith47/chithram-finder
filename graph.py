@@ -3,9 +3,9 @@ from langgraph.graph import StateGraph, END
 
 from llm import get_queries
 from search import search_from_queries
-from platfroms.pexels import search_images as pexels_search
-from platfroms.unsplash import search_images as unsplash_search
-from platfroms.pixabay import search_images as pixabay_search
+from platforms.pexels import search_images as pexels_search
+from platforms.unsplash import search_images as unsplash_search
+from platforms.pixabay import search_images as pixabay_search
 from ranker import rank_images
 from jev import rank_with_jev
 
