@@ -18,6 +18,7 @@ class ImageFinderState(TypedDict):
     unsplash_images: list
     pixabay_images: list
     images: list
+    ranking_method: str
 
 
 def initial_state(context: str) -> ImageFinderState:
@@ -30,7 +31,8 @@ def initial_state(context: str) -> ImageFinderState:
         "pexels_images": [],
         "unsplash_images": [],
         "pixabay_images": [],
-        "images": []
+        "images": [],
+        "ranking_method": ""
     }
 
 
@@ -78,11 +80,13 @@ def combine_images(state: ImageFinderState) -> ImageFinderState:
 def rank_node(state: ImageFinderState) -> ImageFinderState:
     try:
         state["images"] = rank_with_jev(state["context"], state["images"])
+        state["ranking_method"] = "jev"
         print("(ranked using Jev)")
 
     except Exception as error:
-        print(f"Jev ranking failed ({error}), falling back to keyword ranker...")
         state["images"] = rank_images(state["context"], state["images"])
+        state["ranking_method"] = "keyword"
+        print(f"Jev ranking failed ({error}), falling back to keyword ranker...")
 
     return state
 
