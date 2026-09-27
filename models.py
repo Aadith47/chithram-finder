@@ -9,4 +9,4 @@ class Image:
     height: int
     image_url: str
     alt: str
-    source: str = "pexels"
+    source: str = "unknown"
