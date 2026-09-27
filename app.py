@@ -4,90 +4,94 @@ from graph import create_graph
 
 load_dotenv()
 
+from pathlib import Path
+
+ASSETS_DIR = Path(__file__).parent / "assets"
+LOGO_PATH = ASSETS_DIR / "chithram.png"
+
 st.set_page_config(
     page_title="CHITHRAM FINDER",
     page_icon="🖼️",
     layout="wide"
 )
 
-# Clean minimal CSS
+# ---------- Clean minimal CSS ----------
 st.markdown("""
 <style>
     .block-container {
-        padding-top: 3rem;
+        padding-top: 1rem;
         max-width: 1100px;
+    }
+    .hero-wrapper {
+        min-height: 30vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     .chithram-title {
         text-align: center;
         font-size: 2.4rem;
         font-weight: 700;
-        color: ##8AFF94;
+        color: inherit;
         margin-bottom: 0.2rem;
         letter-spacing: -0.5px;
     }
     .chithram-subtitle {
         text-align: center;
-        color: #767676;
+        opacity: 0.65;
         font-size: 1rem;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
         font-weight: 400;
     }
     div[data-testid="stTextInput"] input {
         border-radius: 8px;
         padding: 12px 16px;
-        border: 1px solid #d9d9d9;
         font-size: 0.95rem;
-    }
-    div[data-testid="stTextInput"] input:focus {
-        border-color: #1a1a1a;
-        box-shadow: none;
     }
     .stButton button {
         border-radius: 8px;
-        background: #1a1a1a;
-        color: white;
         font-weight: 500;
-        border: none;
         padding: 0.55rem 1rem;
-        transition: background 0.15s ease;
+        transition: opacity 0.15s ease;
     }
     .stButton button:hover {
-        background: #333;
-        color: white;
-        border: none;
+        opacity: 0.85;
     }
     div[data-testid="stExpander"] {
-        border: 1px solid #eee;
         border-radius: 8px;
     }
     .image-card {
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #eee;
+        border: 1px solid rgba(128,128,128,0.3);
         margin-bottom: 1.2rem;
     }
     .image-caption {
         padding: 0.5rem 0.7rem;
         font-size: 0.8rem;
-        color: #767676;
+        opacity: 0.65;
     }
     hr {
         margin: 2rem 0;
-        border-color: #eee;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Header
+# ---------- Header + search, vertically centered ----------
+st.markdown("<div class='hero-wrapper'>", unsafe_allow_html=True)
+
+icon_col1, icon_col2, icon_col3 = st.columns([1, 0.3, 1])
+with icon_col2:
+    st.image(str(LOGO_PATH), width=180)
+
 st.markdown("<div class='chithram-title'>CHITHRAM FINDER</div>", unsafe_allow_html=True)
 st.markdown(
-    "<p class='chithram-subtitle'>Describe an image and find the closest match across Pexels, Unsplash & Pixabay</p>",
+    "<p class='chithram-subtitle'>Describe it. We'll find it.</p>",
     unsafe_allow_html=True
 )
 
-# Search bar
 left_space, center, right_space = st.columns([1, 2, 1])
-
 with center:
     context = st.text_input(
         "",
@@ -96,7 +100,9 @@ with center:
     )
     search_clicked = st.button("Search", use_container_width=True)
 
-# Results
+st.markdown("</div>", unsafe_allow_html=True)
+
+# ---------- Results ----------
 if search_clicked and context:
     with st.spinner("Searching Pexels, Unsplash and Pixabay..."):
         graph = create_graph()
