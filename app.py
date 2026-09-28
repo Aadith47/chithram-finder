@@ -15,7 +15,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Clean minimal CSS
 st.markdown("""
 <style>
     .block-container {
