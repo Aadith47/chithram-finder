@@ -24,8 +24,6 @@ FALLBACK_MODELS = [
 
 
 def extract_text(response) -> str:
-    # response.content can be a plain string, or a list of content blocks,
-    # depending on the model/provider. Normalize both shapes into one string.
     if isinstance(response.content, str):
         return response.content
 
@@ -68,8 +66,6 @@ def build_prompt(context: str) -> str:
 
 
 def parse_structured_response(text: str):
-    # A model may still wrap JSON in a code fence even when told not to -
-    # strip that off before trying to parse it.
     cleaned = text.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.strip("`")
@@ -85,8 +81,6 @@ def parse_structured_response(text: str):
     except (json.JSONDecodeError, AttributeError):
         pass
 
-    # JSON parsing failed or came back empty - fall back to the old
-    # line-by-line style so a query still gets generated either way.
     return None, parse_queries(text)
 
 
