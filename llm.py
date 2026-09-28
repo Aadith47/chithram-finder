@@ -17,9 +17,9 @@ class QueryInfo(BaseModel):
 FALLBACK_MODELS = [
     "google/gemma-4-31b-it:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
-    "openai/gpt-oss-20b:free",
-    "z-ai/glm-4.5-air:free",
-    "mistralai/mistral-small-4:free",
+    "dots-studio/dots-3-note-preview:free",
+    "poolsixde/lagwwuna-s-2.1:free",
+    "liquid/lfm-2.5-2.6b:free",
 ]
 
 
