@@ -78,7 +78,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Header + search, vertically centered
 st.markdown("<div class='hero-wrapper'>", unsafe_allow_html=True)
 
 icon_col1, icon_col2, icon_col3 = st.columns([1, 0.3, 1])
@@ -102,7 +101,6 @@ with center:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Results
 if search_clicked and context:
     with st.spinner("Searching Pexels, Unsplash and Pixabay..."):
         graph = create_graph()
