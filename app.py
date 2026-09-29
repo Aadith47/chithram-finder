@@ -160,3 +160,6 @@ if search_clicked and context:
 
 elif search_clicked and not context:
     st.warning("Type a description first.")
+
+
+    
