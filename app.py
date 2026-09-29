@@ -1,6 +1,7 @@
 import streamlit as st
 from dotenv import load_dotenv
 from graph import create_graph
+import base64
 
 load_dotenv()
 
@@ -79,9 +80,17 @@ st.markdown("""
 
 st.markdown("<div class='hero-wrapper'>", unsafe_allow_html=True)
 
-icon_col1, icon_col2, icon_col3 = st.columns([1, 0.3, 1])
-with icon_col2:
-    st.image(str(LOGO_PATH), width=180)
+with open(LOGO_PATH, "rb") as f:
+    logo_base64 = base64.b64encode(f.read()).decode()
+
+st.markdown(
+    f"""
+    <div style="text-align: center;">
+        <img src="data:image/png;base64,{logo_base64}" width="210">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("<div class='chithram-title'>CHITHRAM FINDER</div>", unsafe_allow_html=True)
 st.markdown(

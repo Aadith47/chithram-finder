@@ -8,7 +8,7 @@ def rank_with_jev(context, images):
     if not images:
         return images
 
-    api_key = os.getenv("OPENROUTER_API_KEY")
+    api_key = os.getenv("OPENRyOUTER_API_KEY")
     if not api_key:
         raise RuntimeError("OPENROUTER_API_KEY is missing from .env")
 
