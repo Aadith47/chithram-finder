@@ -1,7 +1,9 @@
 import streamlit as st
 from dotenv import load_dotenv
-from graph import create_graph
+from graph import create_graph, initial_state
 import base64
+import html
+
 
 load_dotenv()
 
@@ -112,17 +114,12 @@ st.markdown("</div>", unsafe_allow_html=True)
 if search_clicked and context:
     with st.spinner("Searching Pexels, Unsplash and Pixabay..."):
         graph = create_graph()
-        result = graph.invoke({
-            "context": context,
-            "queries": [],
-            "structured_info": None,
-            "pexels_images": [],
-            "unsplash_images": [],
-            "pixabay_images": [],
-            "images": []
-        })
+        result = graph.invoke(initial_state(context))
 
     st.markdown("<hr>", unsafe_allow_html=True)
+
+    for message in result["errors"]:
+        st.warning(message)
 
     if result["structured_info"]:
         info = result["structured_info"]
@@ -151,7 +148,7 @@ if search_clicked and context:
                 st.markdown("<div class='image-card'>", unsafe_allow_html=True)
                 st.image(image.image_url, use_container_width=True)
                 st.markdown(
-                    f"<div class='image-caption'>{image.source} — {image.photographer}</div>",
+                    f"<div class='image-caption'>{html.escape(image.source)} — {html.escape(image.photographer)}</div>",
                     unsafe_allow_html=True
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
