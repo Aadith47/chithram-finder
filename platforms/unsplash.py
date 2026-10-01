@@ -1,6 +1,6 @@
 import os
-import requests
-from models import Image
+from models import Image, PlatformError
+from platforms.http_client import get_json
 
 UNSPLASH_URL = "https://api.unsplash.com/search/photos"
 
@@ -8,8 +8,7 @@ UNSPLASH_URL = "https://api.unsplash.com/search/photos"
 def search_images(query, per_page=5):
     access_key = os.getenv("UNSPLASH_ACCESS_KEY")
     if not access_key:
-        print("UNSPLASH_ACCESS_KEY is missing from .env")
-        return []
+        raise PlatformError("Unsplash: UNSPLASH_ACCESS_KEY is missing from .env")
 
     headers = {
         "Authorization": f"Client-ID {access_key}"
@@ -19,13 +18,7 @@ def search_images(query, per_page=5):
         "per_page": per_page
     }
 
-    response = requests.get(UNSPLASH_URL, headers=headers, params=params)
-
-    if response.status_code != 200:
-        print(f"Unsplash request failed for '{query}': {response.status_code}")
-        return []
-
-    data = response.json()
+    data = get_json("Unsplash", UNSPLASH_URL, headers=headers, params=params)
     photos = data.get("results", [])
 
     images = []
