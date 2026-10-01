@@ -8,7 +8,7 @@ def rank_with_jev(context, images):
     if not images:
         return images
 
-    api_key = os.getenv("OPENRyOUTER_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError("OPENROUTER_API_KEY is missing from .env")
 
@@ -29,7 +29,7 @@ def rank_with_jev(context, images):
     }
     headers = {"Authorization": f"Bearer {api_key}"}
 
-    response = requests.post(JEV_URL, json=payload, headers=headers)
+    response = requests.post(JEV_URL, json=payload, headers=headers, timeout=30)
 
     if response.status_code != 200:
         raise RuntimeError(f"Jev request failed: {response.status_code} {response.text}")
