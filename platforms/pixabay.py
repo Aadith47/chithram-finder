@@ -1,6 +1,6 @@
 import os
-import requests
-from models import Image
+from models import Image, PlatformError
+from platforms.http_client import get_json
 
 PIXABAY_URL = "https://pixabay.com/api/"
 
@@ -8,8 +8,7 @@ PIXABAY_URL = "https://pixabay.com/api/"
 def search_images(query, per_page=5):
     api_key = os.getenv("PIXABAY_API_KEY")
     if not api_key:
-        print("PIXABAY_API_KEY is missing from .env")
-        return []
+        raise PlatformError("Pixabay: PIXABAY_API_KEY is missing from .env")
 
     params = {
         "key": api_key,
@@ -18,13 +17,7 @@ def search_images(query, per_page=5):
         "per_page": per_page
     }
 
-    response = requests.get(PIXABAY_URL, params=params)
-
-    if response.status_code != 200:
-        print(f"Pixabay request failed for '{query}': {response.status_code}")
-        return []
-
-    data = response.json()
+    data = get_json("Pixabay", PIXABAY_URL, params=params)
     hits = data.get("hits", [])
 
     images = []
