@@ -4,7 +4,7 @@
 
 Describe the image you want in plain English. Chithram Finder searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
 
-![Chithram Finder](assets/screwenshot.png)
+![Chithram Finder](assets/screenshot.png)
 
 ## How it works
 
