@@ -1,4 +1,5 @@
-from typing import TypedDict
+import operator
+from typing import Annotated, TypedDict
 from langgraph.graph import StateGraph, END
 
 from llm import get_queries
@@ -19,7 +20,7 @@ class ImageFinderState(TypedDict):
     pixabay_images: list
     images: list
     ranking_method: str
-    errors: list[str]
+    errors: Annotated[list[str], operator.add]
 
 
 def initial_state(context: str) -> ImageFinderState:
@@ -38,39 +39,32 @@ def initial_state(context: str) -> ImageFinderState:
     }
 
 
-def generate_queries(state: ImageFinderState) -> ImageFinderState:
+def generate_queries(state: ImageFinderState):
     structured_info, queries = get_queries(state["context"])
-    state["structured_info"] = structured_info
-    state["queries"] = queries
+    update = {"structured_info": structured_info, "queries": queries}
 
     if not queries:
-        state["errors"] = state["errors"] + ["Could not generate search queries - every language model failed"]
+        update["errors"] = ["Could not generate search queries - every language model failed"]
 
-    return state
+    return update
 
 
-def search_pexels(state: ImageFinderState) -> ImageFinderState:
+def search_pexels(state: ImageFinderState):
     images, errors = search_from_queries(state["queries"], pexels_search, per_query=5)
-    state["pexels_images"] = images
-    state["errors"] = state["errors"] + errors
-    return state
+    return {"pexels_images": images, "errors": errors}
 
 
-def search_unsplash(state: ImageFinderState) -> ImageFinderState:
+def search_unsplash(state: ImageFinderState):
     images, errors = search_from_queries(state["queries"], unsplash_search, per_query=5)
-    state["unsplash_images"] = images
-    state["errors"] = state["errors"] + errors
-    return state
+    return {"unsplash_images": images, "errors": errors}
 
 
-def search_pixabay(state: ImageFinderState) -> ImageFinderState:
+def search_pixabay(state: ImageFinderState):
     images, errors = search_from_queries(state["queries"], pixabay_search, per_query=5)
-    state["pixabay_images"] = images
-    state["errors"] = state["errors"] + errors
-    return state
+    return {"pixabay_images": images, "errors": errors}
 
 
-def combine_images(state: ImageFinderState) -> ImageFinderState:
+def combine_images(state: ImageFinderState):
     combined = []
     seen_keys = set()
 
@@ -82,22 +76,19 @@ def combine_images(state: ImageFinderState) -> ImageFinderState:
             seen_keys.add(key)
             combined.append(image)
 
-    state["images"] = combined
-    return state
+    return {"images": combined}
 
 
-def rank_node(state: ImageFinderState) -> ImageFinderState:
+def rank_node(state: ImageFinderState):
     try:
-        state["images"] = rank_with_jev(state["context"], state["images"])
-        state["ranking_method"] = "jev"
+        ranked = rank_with_jev(state["context"], state["images"])
         print("(ranked using Jev)")
+        return {"images": ranked, "ranking_method": "jev"}
 
     except Exception as error:
-        state["images"] = rank_images(state["context"], state["images"])
-        state["ranking_method"] = "keyword"
         print(f"Jev ranking failed ({error}), falling back to keyword ranker...")
-
-    return state
+        ranked = rank_images(state["context"], state["images"])
+        return {"images": ranked, "ranking_method": "keyword"}
 
 
 def create_graph():
@@ -111,10 +102,15 @@ def create_graph():
     graph.add_node("rank_images", rank_node)
 
     graph.set_entry_point("generate_queries")
+
+    # All three platforms start together
     graph.add_edge("generate_queries", "search_pexels")
-    graph.add_edge("search_pexels", "search_unsplash")
-    graph.add_edge("search_unsplash", "search_pixabay")
-    graph.add_edge("search_pixabay", "combine_images")
+    graph.add_edge("generate_queries", "search_unsplash")
+    graph.add_edge("generate_queries", "search_pixabay")
+
+    # Combine waits until all three have finished
+    graph.add_edge(["search_pexels", "search_unsplash", "search_pixabay"], "combine_images")
+
     graph.add_edge("combine_images", "rank_images")
     graph.add_edge("rank_images", END)
 
