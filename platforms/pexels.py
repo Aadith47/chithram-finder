@@ -1,6 +1,6 @@
 import os
-import requests
-from models import Image
+from models import Image, PlatformError
+from platforms.http_client import get_json
 
 PEXELS_URL = "https://api.pexels.com/v1/search"
 
@@ -8,8 +8,7 @@ PEXELS_URL = "https://api.pexels.com/v1/search"
 def search_images(query, per_page=5):
     api_key = os.getenv("PEXELS_API_KEY")
     if not api_key:
-        print("PEXELS_API_KEY is missing from .env")
-        return []
+        raise PlatformError("Pexels: PEXELS_API_KEY is missing from .env")
 
     headers = {
         "Authorization": api_key
@@ -19,13 +18,7 @@ def search_images(query, per_page=5):
         "per_page": per_page
     }
 
-    response = requests.get(PEXELS_URL, headers=headers, params=params)
-
-    if response.status_code != 200:
-        print(f"Pexels request failed for '{query}': {response.status_code}")
-        return []
-
-    data = response.json()
+    data = get_json("Pexels", PEXELS_URL, headers=headers, params=params)
     photos = data.get("photos", [])
 
     images = []
