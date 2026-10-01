@@ -23,6 +23,9 @@ def main():
     for query in result["queries"]:
         print("-", query)
 
+    for message in result["errors"]:
+        print("Warning:", message)
+
     print(f"\nFound {len(result['images'])} images.\n")
 
     for image in result["images"]:
