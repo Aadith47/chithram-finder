@@ -102,9 +102,3 @@ python main.py
 - **Unsplash demo keys allow 50 requests per hour.** One search makes 3 Unsplash requests.
 - **Cross-platform duplicates.** The same photo uploaded to two platforms under different IDs is not detected.
 - Check each platform's API terms before using results in a commercial project.
-
-## To do
-
-- [x] Run the three platform searches in parallel
-- [ ] Automated tests
-- [ ] Cache repeated searches
