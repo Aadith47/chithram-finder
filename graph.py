@@ -19,6 +19,7 @@ class ImageFinderState(TypedDict):
     pixabay_images: list
     images: list
     ranking_method: str
+    errors: list[str]
 
 
 def initial_state(context: str) -> ImageFinderState:
@@ -32,7 +33,8 @@ def initial_state(context: str) -> ImageFinderState:
         "unsplash_images": [],
         "pixabay_images": [],
         "images": [],
-        "ranking_method": ""
+        "ranking_method": "",
+        "errors": []
     }
 
 
@@ -40,24 +42,31 @@ def generate_queries(state: ImageFinderState) -> ImageFinderState:
     structured_info, queries = get_queries(state["context"])
     state["structured_info"] = structured_info
     state["queries"] = queries
+
+    if not queries:
+        state["errors"] = state["errors"] + ["Could not generate search queries - every language model failed"]
+
     return state
 
 
 def search_pexels(state: ImageFinderState) -> ImageFinderState:
-    images = search_from_queries(state["queries"], pexels_search, per_query=5)
+    images, errors = search_from_queries(state["queries"], pexels_search, per_query=5)
     state["pexels_images"] = images
+    state["errors"] = state["errors"] + errors
     return state
 
 
 def search_unsplash(state: ImageFinderState) -> ImageFinderState:
-    images = search_from_queries(state["queries"], unsplash_search, per_query=5)
+    images, errors = search_from_queries(state["queries"], unsplash_search, per_query=5)
     state["unsplash_images"] = images
+    state["errors"] = state["errors"] + errors
     return state
 
 
 def search_pixabay(state: ImageFinderState) -> ImageFinderState:
-    images = search_from_queries(state["queries"], pixabay_search, per_query=5)
+    images, errors = search_from_queries(state["queries"], pixabay_search, per_query=5)
     state["pixabay_images"] = images
+    state["errors"] = state["errors"] + errors
     return state
 
 
