@@ -1,6 +1,6 @@
 import streamlit as st
 from dotenv import load_dotenv
-from graph import create_graph, initial_state
+from app_cache import run_search
 import base64
 import html
 
@@ -113,10 +113,11 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 if search_clicked and context:
     with st.spinner("Searching Pexels, Unsplash and Pixabay..."):
-        graph = create_graph()
-        result = graph.invoke(initial_state(context))
+        result, from_cache = run_search(context)
 
     st.markdown("<hr>", unsafe_allow_html=True)
+    if from_cache:
+        st.caption("Showing the saved result from an earlier search of this description.")
 
     for message in result["errors"]:
         st.warning(message)
