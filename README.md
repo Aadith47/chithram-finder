@@ -1,10 +1,10 @@
-# Chithram Finder
+# Lensly
 
-*Chithram* (ചിത്രം) means "picture" in Malayalam.
+*Lensly*
 
-Describe the image you want in plain English. Chithram Finder searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
+Describe the image you want in plain English. Lensly searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
 
-![Chithram Finder](assets/Screenshot.png)
+![Lensly](assets/Screenshot.png)
 
 ## How it works
 
@@ -42,7 +42,7 @@ The steps are nodes in a [LangGraph](https://langchain-ai.github.io/langgraph/) 
 ## Project structure
 
 ```
-chithram-finder/
+lensly/
 ├── app.py              # Streamlit web app
 ├── app_cache.py        # Keeps finished searches in memory for the app
 ├── main.py             # Command-line version
