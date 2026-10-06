@@ -1,10 +1,8 @@
-# Lensly
+# Pixora
 
-*Lensly*
+Describe the image you want in plain English. Pixora searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
 
-Describe the image you want in plain English. Lensly searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
-
-![Lensly](assets/Screenshot.png)
+![Pixora](assets/screenshot.png)
 
 ## How it works
 
@@ -42,7 +40,7 @@ The steps are nodes in a [LangGraph](https://langchain-ai.github.io/langgraph/) 
 ## Project structure
 
 ```
-lensly/
+pixora-image-finder/
 ├── app.py              # Streamlit web app
 ├── app_cache.py        # Keeps finished searches in memory for the app
 ├── main.py             # Command-line version
@@ -105,3 +103,10 @@ python main.py
 - **The cache is for the app only and lives in memory**, so it resets when the app restarts. It saves repeated identical searches. Pixabay asks for requests to be cached for 24 hours, and the same Pixabay query coming from two different descriptions is not covered yet.
 - **Cross-platform duplicates.** The same photo uploaded to two platforms under different IDs is not detected.
 - Check each platform's API terms before using results in a commercial project.
+
+## To do
+
+- [x] Run the three platform searches in parallel
+- [ ] Automated tests
+- [x] Cache repeated searches in the app
+- [ ] Cache individual API calls (also covers Pixabay's 24-hour rule)

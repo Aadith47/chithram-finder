@@ -13,7 +13,7 @@ ASSETS_DIR = Path(__file__).parent / "assets"
 LOGO_PATH = ASSETS_DIR / "chithram.png"
 
 st.set_page_config(
-    page_title="Lensly",
+    page_title="Pixora",
     page_icon="🖼️",
     layout="wide"
 )
@@ -31,7 +31,7 @@ st.markdown("""
         justify-content: center;
         align-items: center;
     }
-    .lensly {
+    .Pixora {
         text-align: center;
         font-size: 2.4rem;
         font-weight: 700;
@@ -39,7 +39,7 @@ st.markdown("""
         margin-bottom: 0.2rem;
         letter-spacing: -0.5px;
     }
-    .lensly-subtitle {
+    .Pixora-subtitle {
         text-align: center;
         opacity: 0.65;
         font-size: 1rem;
@@ -94,9 +94,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("<div class='lensly'>Lensly</div>", unsafe_allow_html=True)
+st.markdown("<div class='Pixora'>Pixora</div>", unsafe_allow_html=True)
 st.markdown(
-    "<p class='lensly-subtitle'>Describe it. We'll find it.</p>",
+    "<p class='Pixora-subtitle'>Describe it. We'll find it.</p>",
     unsafe_allow_html=True
 )
 
