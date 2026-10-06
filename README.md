@@ -2,7 +2,7 @@
 
 Describe the image you want in plain English. Pixora searches Pexels, Unsplash and Pixabay, removes duplicates, and ranks the results by how well they match your description.
 
-![Pixora](assets/screenshot.png)
+![Pixora](assets/Screenshot.png)
 
 ## How it works
 
