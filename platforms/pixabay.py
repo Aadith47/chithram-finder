@@ -27,7 +27,7 @@ def search_images(query, per_page=5):
             photographer=hit["user"],
             width=hit["imageWidth"],
             height=hit["imageHeight"],
-            image_url=hit["largeImageURL"],
+            image_url=hit["webformatURL"],
             alt=hit.get("tags", ""),
             source="pixabay"
         )
