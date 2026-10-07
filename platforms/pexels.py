@@ -28,7 +28,7 @@ def search_images(query, per_page=5):
             photographer=photo["photographer"],
             width=photo["width"],
             height=photo["height"],
-            image_url=photo["src"]["original"],
+            image_url=photo["src"]["large"],
             alt=photo.get("alt", "") or "",
             source="pexels"
         )
