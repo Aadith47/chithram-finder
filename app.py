@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from app_cache import run_search
 import base64
 import html
-
+import os
 
 load_dotenv()
 
@@ -17,6 +17,8 @@ st.set_page_config(
     page_icon="🖼️",
     layout="wide"
 )
+
+st.write({name: bool(os.getenv(name)) for name in ["GEMINI_API_KEY", "OPENROUTER_API_KEY", "PEXELS_API_KEY", "UNSPLASH_ACCESS_KEY", "PIXABAY_API_KEY"]})
 
 st.markdown("""
 <style>
@@ -102,12 +104,12 @@ st.markdown(
 
 left_space, center, right_space = st.columns([1, 2, 1])
 with center:
-    context = st.text_input(
-        "",
-        placeholder="e.g. a laptop showing a dashboard on a wooden desk near a window",
-        label_visibility="collapsed"
-    )
-    search_clicked = st.button("Search", use_container_width=True)
+       context = st.text_input(
+       "Describe the image",
+       placeholder="e.g. a laptop showing a dashboard on a wooden desk near a window",
+       label_visibility="collapsed"
+)
+search_clicked = st.button("Search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
