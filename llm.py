@@ -1,8 +1,12 @@
 import os
 import json
+import logging
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
+
+
+logger = logging.getLogger(__name__)
 
 
 class QueryInfo(BaseModel):
@@ -18,12 +22,14 @@ FALLBACK_MODELS = [
     "google/gemma-4-31b-it:free",
     "nvidia/nemotron-3-ultra-550b-a55b:free",
     "dots-studio/dots-3-note-preview:free",
-    "poolsixde/lagwwuna-s-2.1:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
     "liquid/lfm-2.5-2.6b:free",
 ]
 
 
 def extract_text(response) -> str:
+    # response.content can be a plain string, or a list of content blocks,
+    # depending on the model/provider. Normalize both shapes into one string.
     if isinstance(response.content, str):
         return response.content
 
@@ -66,6 +72,8 @@ def build_prompt(context: str) -> str:
 
 
 def parse_structured_response(text: str):
+    # A model may still wrap JSON in a code fence even when told not to -
+    # strip that off before trying to parse it.
     cleaned = text.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.strip("`")
@@ -81,6 +89,8 @@ def parse_structured_response(text: str):
     except (json.JSONDecodeError, AttributeError):
         pass
 
+    # JSON parsing failed or came back empty - fall back to the old
+    # line-by-line style so a query still gets generated either way.
     return None, parse_queries(text)
 
 
@@ -100,7 +110,7 @@ def get_queries(context: str):
         return result.model_dump(), result.queries
 
     except Exception as error:
-        print(f"Gemini failed ({error}), trying OpenRouter fallbacks...")
+        logger.warning("Gemini failed: %s: %s", type(error).__name__, error)
 
     api_key = os.getenv("OPENROUTER_API_KEY")
 
@@ -117,7 +127,7 @@ def get_queries(context: str):
             return parse_structured_response(text)
 
         except Exception as error:
-            print(f"{model_name} failed ({error}), trying next fallback...")
+            logger.warning("%s failed: %s: %s", model_name, type(error).__name__, error)
 
-    print("All fallback models failed, no queries generated")
+    logger.warning("All fallback models failed, no queries generated")
     return None, []
