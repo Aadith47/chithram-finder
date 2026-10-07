@@ -1,5 +1,6 @@
 import logging
 import operator
+import time
 from typing import Annotated, TypedDict
 from langgraph.graph import StateGraph, END
 
@@ -100,15 +101,25 @@ def rank_node(state: ImageFinderState):
         return {"images": ranked, "ranking_method": "keyword"}
 
 
+def timed(name, node):
+    """Wrap a node so the log shows how long it took."""
+    def run(state):
+        start = time.time()
+        update = node(state)
+        print(f"[timing] {name}: {time.time() - start:.1f}s", flush=True)
+        return update
+    return run
+
+
 def create_graph():
     graph = StateGraph(ImageFinderState)
 
-    graph.add_node("generate_queries", generate_queries)
-    graph.add_node("search_pexels", search_pexels)
-    graph.add_node("search_unsplash", search_unsplash)
-    graph.add_node("search_pixabay", search_pixabay)
-    graph.add_node("combine_images", combine_images)
-    graph.add_node("rank_images", rank_node)
+    graph.add_node("generate_queries", timed("generate_queries", generate_queries))
+    graph.add_node("search_pexels", timed("search_pexels", search_pexels))
+    graph.add_node("search_unsplash", timed("search_unsplash", search_unsplash))
+    graph.add_node("search_pixabay", timed("search_pixabay", search_pixabay))
+    graph.add_node("combine_images", timed("combine_images", combine_images))
+    graph.add_node("rank_images", timed("rank_images", rank_node))
 
     graph.set_entry_point("generate_queries")
 
