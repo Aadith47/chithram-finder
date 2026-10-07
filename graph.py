@@ -1,3 +1,4 @@
+import logging
 import operator
 from typing import Annotated, TypedDict
 from langgraph.graph import StateGraph, END
@@ -11,6 +12,9 @@ from ranker import rank_images
 from jev import rank_with_jev
 
 
+logger = logging.getLogger(__name__)
+
+
 class ImageFinderState(TypedDict):
     context: str
     queries: list[str]
@@ -20,6 +24,8 @@ class ImageFinderState(TypedDict):
     pixabay_images: list
     images: list
     ranking_method: str
+    # The three search nodes run at the same time and can all add errors.
+    # operator.add tells LangGraph to join those lists instead of complaining.
     errors: Annotated[list[str], operator.add]
 
 
@@ -38,6 +44,9 @@ def initial_state(context: str) -> ImageFinderState:
         "errors": []
     }
 
+
+# Every node returns only the keys it changes. Nodes that run in parallel
+# must not return the whole state, or they would all write the same keys.
 
 def generate_queries(state: ImageFinderState):
     structured_info, queries = get_queries(state["context"])
@@ -86,7 +95,7 @@ def rank_node(state: ImageFinderState):
         return {"images": ranked, "ranking_method": "jev"}
 
     except Exception as error:
-        print(f"Jev ranking failed ({error}), falling back to keyword ranker...")
+        logger.warning("Jev ranking failed: %s: %s", type(error).__name__, error)
         ranked = rank_images(state["context"], state["images"])
         return {"images": ranked, "ranking_method": "keyword"}
 
@@ -103,12 +112,12 @@ def create_graph():
 
     graph.set_entry_point("generate_queries")
 
-    # All three platforms start together
+    # fan out: all three platforms start together
     graph.add_edge("generate_queries", "search_pexels")
     graph.add_edge("generate_queries", "search_unsplash")
     graph.add_edge("generate_queries", "search_pixabay")
 
-    # Combine waits until all three have finished
+    # fan in: combine waits until all three have finished
     graph.add_edge(["search_pexels", "search_unsplash", "search_pixabay"], "combine_images")
 
     graph.add_edge("combine_images", "rank_images")
