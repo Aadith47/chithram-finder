@@ -30,7 +30,7 @@ def search_images(query, per_page=5):
             photographer=photo["user"]["name"],
             width=photo["width"],
             height=photo["height"],
-            image_url=photo["urls"]["regular"],
+            image_url=photo["urls"]["small"],
             alt=alt_text,
             source="unsplash"
         )
