@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from app_cache import run_search
 import base64
 import html
-import os
 
 load_dotenv()
 
@@ -17,8 +16,6 @@ st.set_page_config(
     page_icon="🖼️",
     layout="wide"
 )
-
-st.write({name: bool(os.getenv(name)) for name in ["GEMINI_API_KEY", "OPENROUTER_API_KEY", "PEXELS_API_KEY", "UNSPLASH_ACCESS_KEY", "PIXABAY_API_KEY"]})
 
 st.markdown("""
 <style>
