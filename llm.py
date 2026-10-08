@@ -1,12 +1,17 @@
 import os
 import json
 import logging
+import time
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
 
 logger = logging.getLogger(__name__)
+
+# Give up on a model after this long, so one slow model can't hold up the search.
+GEMINI_TIMEOUT_SECONDS = 15
+FALLBACK_TIMEOUT_SECONDS = 15
 
 
 class QueryInfo(BaseModel):
@@ -102,32 +107,42 @@ def get_queries(context: str):
     """
     prompt = build_prompt(context)
 
+    started = time.time()
     try:
-        model = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+        model = ChatGoogleGenerativeAI(
+            model="gemini-3.6-flash",
+            timeout=GEMINI_TIMEOUT_SECONDS,
+            max_retries=1,
+        )
         structured_model = model.with_structured_output(QueryInfo)
         result = structured_model.invoke(prompt)
-        print("(used Gemini, structured output)")
+        print(f"(used Gemini, structured output) {time.time() - started:.1f}s", flush=True)
         return result.model_dump(), result.queries
 
     except Exception as error:
-        logger.warning("Gemini failed: %s: %s", type(error).__name__, error)
+        logger.warning("Gemini failed after %.1fs: %s: %s",
+                       time.time() - started, type(error).__name__, error)
 
     api_key = os.getenv("OPENROUTER_API_KEY")
 
     for model_name in FALLBACK_MODELS:
+        started = time.time()
         try:
             fallback_model = ChatOpenAI(
                 model=model_name,
                 api_key=api_key,
                 base_url="https://openrouter.ai/api/v1",
+                timeout=FALLBACK_TIMEOUT_SECONDS,
+                max_retries=0,
             )
             response = fallback_model.invoke(prompt)
             text = extract_text(response)
-            print(f"(used OpenRouter fallback: {model_name})")
+            print(f"(used OpenRouter fallback: {model_name}) {time.time() - started:.1f}s", flush=True)
             return parse_structured_response(text)
 
         except Exception as error:
-            logger.warning("%s failed: %s: %s", model_name, type(error).__name__, error)
+            logger.warning("%s failed after %.1fs: %s: %s", model_name,
+                           time.time() - started, type(error).__name__, error)
 
     logger.warning("All fallback models failed, no queries generated")
     return None, []
