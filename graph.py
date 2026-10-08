@@ -54,7 +54,9 @@ def generate_queries(state: ImageFinderState):
     update = {"structured_info": structured_info, "queries": queries}
 
     if not queries:
-        update["errors"] = ["Could not generate search queries - every language model failed"]
+        # Every model failed. Search with the user's own words instead of returning nothing.
+        update["queries"] = [state["context"]]
+        update["errors"] = ["The language models are busy right now, so this search used your description exactly as written."]
 
     return update
 
