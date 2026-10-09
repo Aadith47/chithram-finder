@@ -1,8 +1,15 @@
 import os
+from urllib.parse import quote
 from models import Image, PlatformError
 from platforms.http_client import get_json
 
 PIXABAY_URL = "https://pixabay.com/api/"
+
+
+def profile_url(hit):
+    if "user" in hit and "user_id" in hit:
+        return f"https://pixabay.com/users/{quote(hit['user'])}-{hit['user_id']}/"
+    return ""
 
 
 def search_images(query, per_page=5):
@@ -27,9 +34,11 @@ def search_images(query, per_page=5):
             photographer=hit["user"],
             width=hit["imageWidth"],
             height=hit["imageHeight"],
-            image_url=hit["webformatURL"],
+            image_url=hit["largeImageURL"],
             alt=hit.get("tags", ""),
-            source="pixabay"
+            source="pixabay",
+            page_url=hit.get("pageURL", ""),
+            photographer_url=profile_url(hit)
         )
         images.append(image)
 
