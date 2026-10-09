@@ -4,6 +4,16 @@ from platforms.http_client import get_json
 
 UNSPLASH_URL = "https://api.unsplash.com/search/photos"
 
+# Unsplash asks for links back to them to carry these two tracking parameters.
+UTM = "utm_source=pixora&utm_medium=referral"
+
+
+def with_utm(url):
+    if not url:
+        return ""
+    separator = "&" if "?" in url else "?"
+    return url + separator + UTM
+
 
 def search_images(query, per_page=5):
     access_key = os.getenv("UNSPLASH_ACCESS_KEY")
@@ -30,9 +40,11 @@ def search_images(query, per_page=5):
             photographer=photo["user"]["name"],
             width=photo["width"],
             height=photo["height"],
-            image_url=photo["urls"]["small"],
+            image_url=photo["urls"]["regular"],
             alt=alt_text,
-            source="unsplash"
+            source="unsplash",
+            page_url=with_utm(photo.get("links", {}).get("html", "")),
+            photographer_url=with_utm(photo["user"].get("links", {}).get("html", ""))
         )
         images.append(image)
 
