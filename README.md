@@ -30,11 +30,12 @@ The steps are nodes in a [LangGraph](https://langchain-ai.github.io/langgraph/) 
 ## Features
 
 - **Structured understanding.** Gemini returns a fixed schema (main subject, environment, device, screen content, style, queries) using structured output, so the response is reliably parseable.
-- **Language model fallback.** If Gemini fails, the app tries a list of free OpenRouter models in order. The list is in `llm.py`.
+- **Language model fallback.** The app tries two Gemini models, then a list of free OpenRouter models, giving each a hard deadline. If it runs out of time, it searches with your description as written and shows a warning. The model lists are in `llm.py`.
 - **Three image platforms** searched in parallel and normalised into one `Image` type.
 - **Deduplication** by platform and photo ID. The same photo found by different queries appears once, even when the platform puts different tracking data in its URL.
 - **AI ranking.** [Jev](https://openrouter.ai/typesafe/jev-1.13) compares all image descriptions with your request in one call. If that fails, a keyword-overlap ranker takes over.
 - **Search cache.** In the app, searching the same description again within 24 hours returns the saved result instantly. Searches that had errors or found no images are never saved.
+- **Credits and links.** Every image shows "Photo by <photographer> on <platform>", linked to the photographer's profile and to the photo's page, where the full-quality original can be downloaded.
 - **Visible failures.** Every network call has a timeout. If a platform fails, the app shows a warning and still returns results from the others.
 
 ## Project structure
@@ -43,6 +44,7 @@ The steps are nodes in a [LangGraph](https://langchain-ai.github.io/langgraph/) 
 pixora-image-finder/
 ├── app.py              # Streamlit web app
 ├── app_cache.py        # Keeps finished searches in memory for the app
+├── credits.py          # Builds the "Photo by ... on ..." credit line
 ├── main.py             # Command-line version
 ├── graph.py            # LangGraph pipeline: state, nodes, wiring
 ├── llm.py              # Query generation: Gemini + OpenRouter fallback chain
@@ -101,5 +103,13 @@ python main.py
 - **Free OpenRouter models change often.** If a fallback model stops working, update `FALLBACK_MODELS` in `llm.py`.
 - **Unsplash demo keys allow 50 requests per hour.** One search makes 3 Unsplash requests.
 - **The cache is for the app only and lives in memory**, so it resets when the app restarts. It saves repeated identical searches. Pixabay asks for requests to be cached for 24 hours, and the same Pixabay query coming from two different descriptions is not covered yet.
+- **The grid shows reduced-size previews** (about 940 to 1280 pixels wide). For the original file, use the link under each image. Pixabay standard API keys do not include originals.
 - **Cross-platform duplicates.** The same photo uploaded to two platforms under different IDs is not detected.
 - Check each platform's API terms before using results in a commercial project.
+
+## To do
+
+- [x] Run the three platform searches in parallel
+- [ ] Automated tests
+- [x] Cache repeated searches in the app
+- [ ] Cache individual API calls (also covers Pixabay's 24-hour rule)
