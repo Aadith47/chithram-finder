@@ -1,12 +1,14 @@
-import streamlit as st
-from dotenv import load_dotenv
-from app_cache import run_search
 import base64
 import html
+from pathlib import Path
+
+import streamlit as st
+from dotenv import load_dotenv
+
+from app_cache import run_search
+from credits import credit_html
 
 load_dotenv()
-
-from pathlib import Path
 
 ASSETS_DIR = Path(__file__).parent / "assets"
 LOGO_PATH = ASSETS_DIR / "chithram.png"
@@ -30,7 +32,7 @@ st.markdown("""
         justify-content: center;
         align-items: center;
     }
-    .Pixora {
+    .pixora-title {
         text-align: center;
         font-size: 2.4rem;
         font-weight: 700;
@@ -38,7 +40,7 @@ st.markdown("""
         margin-bottom: 0.2rem;
         letter-spacing: -0.5px;
     }
-    .Pixora-subtitle {
+    .pixora-subtitle {
         text-align: center;
         opacity: 0.65;
         font-size: 1rem;
@@ -73,6 +75,10 @@ st.markdown("""
         font-size: 0.8rem;
         opacity: 0.65;
     }
+    .image-caption a {
+        color: inherit;
+        text-decoration: underline;
+    }
     hr {
         margin: 2rem 0;
     }
@@ -93,20 +99,20 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("<div class='Pixora'>Pixora</div>", unsafe_allow_html=True)
+st.markdown("<div class='pixora-title'>PIXORA</div>", unsafe_allow_html=True)
 st.markdown(
-    "<p class='Pixora-subtitle'>Describe it. We'll find it.</p>",
+    "<p class='pixora-subtitle'>Describe it. We'll find it.</p>",
     unsafe_allow_html=True
 )
 
 left_space, center, right_space = st.columns([1, 2, 1])
 with center:
-       context = st.text_input(
-       "Describe the image",
-       placeholder="e.g. a laptop showing a dashboard on a wooden desk near a window",
-       label_visibility="collapsed"
-)
-search_clicked = st.button("Search", use_container_width=True)
+    context = st.text_input(
+        "Describe the image",
+        placeholder="e.g. a laptop showing a dashboard on a wooden desk near a window",
+        label_visibility="collapsed"
+    )
+    search_clicked = st.button("Search", use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -115,6 +121,7 @@ if search_clicked and context:
         result, from_cache = run_search(context)
 
     st.markdown("<hr>", unsafe_allow_html=True)
+
     if from_cache:
         st.caption("Showing the saved result from an earlier search of this description.")
 
@@ -148,7 +155,7 @@ if search_clicked and context:
                 st.markdown("<div class='image-card'>", unsafe_allow_html=True)
                 st.image(image.image_url, use_container_width=True)
                 st.markdown(
-                    f"<div class='image-caption'>{html.escape(image.source)} — {html.escape(image.photographer)}</div>",
+                    f"<div class='image-caption'>{credit_html(image)}</div>",
                     unsafe_allow_html=True
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
@@ -157,4 +164,3 @@ if search_clicked and context:
 
 elif search_clicked and not context:
     st.warning("Type a description first.")
-
