@@ -30,7 +30,9 @@ def search_images(query, per_page=5):
             height=photo["height"],
             image_url=photo["src"]["large"],
             alt=photo.get("alt", "") or "",
-            source="pexels"
+            source="pexels",
+            page_url=photo.get("url", ""),
+            photographer_url=photo.get("photographer_url", "")
         )
         images.append(image)
 
