@@ -10,6 +10,8 @@ class Image:
     image_url: str
     alt: str
     source: str = "pexels"
+    page_url: str = ""          # the photo's own page on the platform
+    photographer_url: str = ""  # the photographer's profile on the platform
 
 
 class PlatformError(Exception):
